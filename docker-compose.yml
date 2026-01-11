@@ -7,7 +7,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx:/etc/nginx/conf.d
       - ./app:/var/www/html
     depends_on:
       - php
@@ -41,6 +40,7 @@ services:
 
 volumes:
   mysql_data:
+
 
 
 
