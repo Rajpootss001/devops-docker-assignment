@@ -1,6 +1,7 @@
 #!/bin/bash
+set -e
 
-# ================= CONFIG =================
+# ================= CONFIGURATION =================
 MYSQL_CONTAINER="mysql"
 DB_USER="root"
 DB_PASSWORD="rootpass"
@@ -9,44 +10,36 @@ DB_NAME="testdb"
 BACKUP_DIR="./mysql-backups"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 BACKUP_FILE="${DB_NAME}_${TIMESTAMP}.sql"
+COMPRESSED_FILE="${BACKUP_FILE}.gz"
 
-S3_BUCKET="s3://my-mysql-backups-bucket"
+S3_BUCKET="s3://dkmd/mysql-backups"
 
-# ================= PREP =================
+# ================= PREPARATION =================
 mkdir -p "$BACKUP_DIR"
 
-echo "Checking database availability..."
+echo "🔍 Checking MySQL database availability..."
 
-docker exec "$MYSQL_CONTAINER" \
-  mysql -u"$DB_USER" -p"$DB_PASSWORD" -e "USE $DB_NAME;" >/dev/null 2>&1
-
-if [ $? -ne 0 ]; then
+if ! docker exec "$MYSQL_CONTAINER" \
+  mysql -u"$DB_USER" -p"$DB_PASSWORD" -e "USE $DB_NAME;" >/dev/null 2>&1; then
   echo "❌ Database '$DB_NAME' does not exist. Backup aborted."
   exit 1
 fi
 
 # ================= BACKUP =================
-echo "Starting MySQL backup..."
+echo "📦 Starting MySQL backup..."
 
 docker exec "$MYSQL_CONTAINER" \
   mysqldump -u"$DB_USER" -p"$DB_PASSWORD" "$DB_NAME" \
   > "$BACKUP_DIR/$BACKUP_FILE"
 
-if [ $? -ne 0 ]; then
-  echo "❌ MySQL backup failed"
-  exit 1
-fi
+# ================= COMPRESSION =================
+gzip "$BACKUP_DIR/$BACKUP_FILE"
 
-echo "✅ Backup created: $BACKUP_DIR/$BACKUP_FILE"
+echo "✅ Backup created: $BACKUP_DIR/$COMPRESSED_FILE"
 
 # ================= S3 UPLOAD =================
-echo "Uploading backup to S3..."
+echo "☁️ Uploading backup to Amazon S3..."
 
-aws s3 cp "$BACKUP_DIR/$BACKUP_FILE" "$S3_BUCKET/"
+aws s3 cp "$BACKUP_DIR/$COMPRESSED_FILE" "$S3_BUCKET/"
 
-if [ $? -ne 0 ]; then
-  echo "❌ S3 upload failed"
-  exit 1
-fi
-
-echo "✅ Backup uploaded to S3 successfully"
+echo "✅ Backup uploaded successfully to S3"
