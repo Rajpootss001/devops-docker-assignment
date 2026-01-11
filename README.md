@@ -1,4 +1,4 @@
-# DevOps Docker Assignment
+# Docker and Automation with Jenkins
 
 ![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-Jenkins-success)
