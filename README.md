@@ -87,7 +87,7 @@ aws --version
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/devops-docker-assignment.git
+git clone https://github.com/Rajpootss001/devops-docker-assignment.git
 cd devops-docker-assignment
 ```
 
@@ -113,8 +113,9 @@ docker ps
 
 | Service         | URL                                            |
 | --------------- | ---------------------------------------------- |
-| Web Application | [http://localhost:8080](http://localhost:8080) |
+| Jenkins         | [http://localhost:8080](http://localhost:8080) |
 | phpMyAdmin      | [http://localhost:8081](http://localhost:8081) |
+| Nginx           | [http://localhost:80](http://localhost:80) |
 
 ---
 
