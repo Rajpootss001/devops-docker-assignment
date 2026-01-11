@@ -30,6 +30,17 @@ pipeline {
                 sh 'docker ps'
             }
         }
+
+        stage('Extract IPs') {
+            steps {
+                sh '''
+                  LOG_FILE=/var/log/nginx/access.log
+                  grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}' "$LOG_FILE" \
+                  | sort -u > unique_ips.txt
+                  cat unique_ips.txt
+                '''
+            }
+        }
     }
 
     post {
@@ -41,5 +52,6 @@ pipeline {
         }
     }
 }
+
 
 
