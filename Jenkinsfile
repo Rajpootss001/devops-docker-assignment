@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timeout(time: 30, unit: 'MINUTES')
+        skipStagesAfterUnstable()
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -12,15 +20,15 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                sh 'docker compose build || true'
+                sh 'docker-compose build'
             }
         }
 
         stage('Deploy Containers') {
             steps {
                 sh '''
-                  docker compose down
-                  docker compose up -d
+                  docker-compose down
+                  docker-compose up -d
                 '''
             }
         }
@@ -28,17 +36,6 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh 'docker ps'
-            }
-        }
-
-        stage('Extract IPs') {
-            steps {
-                sh '''
-                  LOG_FILE=/var/log/nginx/access.log
-                  grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}' "$LOG_FILE" \
-                  | sort -u > unique_ips.txt
-                  cat unique_ips.txt
-                '''
             }
         }
     }
@@ -52,6 +49,3 @@ pipeline {
         }
     }
 }
-
-
-
