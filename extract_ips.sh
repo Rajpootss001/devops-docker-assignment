@@ -1,13 +1,4 @@
 #!/bin/bash
+# Extract unique client IPs from Dockerized Nginx logs
 
-LOG_FILE="/var/log/nginx/access.log"
-
-if [ ! -f "$LOG_FILE" ]; then
-  echo "Log file not found: $LOG_FILE"
-  exit 1
-fi
-
-echo "Unique IP addresses from Nginx logs:"
-echo "-----------------------------------"
-
-awk '{print $1}' "$LOG_FILE" | sort | uniq
+docker logs nginx 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | sort | uniq
