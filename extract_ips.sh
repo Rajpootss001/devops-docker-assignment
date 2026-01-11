@@ -7,5 +7,7 @@ if [ ! -f "$LOG_FILE" ]; then
   exit 1
 fi
 
-echo "Unique IP addresses:"
+echo "Unique IP addresses from Nginx logs:"
+echo "-----------------------------------"
+
 awk '{print $1}' "$LOG_FILE" | sort | uniq
