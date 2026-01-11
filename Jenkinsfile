@@ -1,13 +1,5 @@
 pipeline {
-     agent any
-    
-    options {
-        disableConcurrentBuilds()
-        timestamps()
-        buildDiscarder(logRotator(numToKeepStr: '20'))
-        timeout(time: 30, unit: 'MINUTES')
-        skipStagesAfterUnstable()
-    }
+    agent any
 
     stages {
 
@@ -20,11 +12,11 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                echo 'Using official images from Docker Hub'
+                sh 'docker compose build || true'
             }
         }
 
-        stage('Deploy Using Docker Compose') {
+        stage('Deploy Containers') {
             steps {
                 sh '''
                 docker compose down || true
@@ -42,13 +34,10 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment completed successfully'
+            echo 'Docker Compose deployment successful'
         }
         failure {
-            echo 'Deployment failed'
+            echo 'Docker Compose deployment failed'
         }
     }
-
 }
-
-
